@@ -1,5 +1,11 @@
-from io import StringIO
+"""" readFile.py
+*   Author : Yvain RAYNAUD
+*   Date : 05/06/2020
+*   Object : file used to extract text from pdf and docx
+"""
 
+
+from io import StringIO
 from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
 from pdfminer.pdfdocument import PDFDocument

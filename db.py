@@ -1,10 +1,13 @@
 """ db.py
-    file containing all function dealing with the databases
-    part from https://www.sqlitetutorial.net/sqlite-python/insert/
+*   Author : Yvain RAYNAUD
+*   Date : 05/06/2020
+*   Object :   file containing all function dealing with the databases
+*              part from https://www.sqlitetutorial.net/sqlite-python/insert/
 """
 
 import sqlite3
 from sqlite3 import Error
+
 DATABASE = "drwh.db"
 
 def create_connection(db_file):

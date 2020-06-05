@@ -1,14 +1,20 @@
+"""" main.py
+*   Author : Yvain RAYNAUD
+*   Date : 05/06/2020
+*   Object : main file for code "defi code"
+"""
+
 import sqlite3
 import pandas as pd
 import numpy as np
-import db #import database file
-import readFile
 import glob
 from datetime import date
 
+import db 
+import readFile
 
 UPLOAD_ID = 0 #based on upload
-PATIENT_NUM = 0 #based on the last PATIENT_NUM in DB
+PATIENT_NUM = 0 #based on the last PATIENT_NUM in DB TODO
 DATABASE = "drwh.db"
 
 
@@ -53,8 +59,6 @@ def importXlsxIntoDb(input):
     connection.close()
     print("\n")
 
-
-#local version using pdfminer
 def pdfProcessing():
     """
     Read and process all pdf file situated in "./fichiers source/" then inject it in the document table
@@ -88,7 +92,6 @@ def pdfProcessing():
         print(".", end = '')
         index = index + 1
     print("\n")
-
 
 def docxProcessing():
     """
@@ -124,9 +127,6 @@ def docxProcessing():
         print(".", end = '')
         index = index + 1
     print("\n")
-
-
-
 
 def main():
     db.resetDB()
