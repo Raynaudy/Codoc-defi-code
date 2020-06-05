@@ -70,8 +70,8 @@ def insert_document(conn, doc):
     :param conn:
     :param doc (DOCUMENT_NUM, PATIENT_NUM, DOCUMENT_ORIGIN_CODE, UPDATE_DATE, DISPLAYED_TEXT)
     """
-    sql = ''' INSERT INTO DWH_DOCUMENT(DOCUMENT_NUM, PATIENT_NUM, DOCUMENT_ORIGIN_CODE, UPDATE_DATE, DISPLAYED_TEXT)
-                        VALUES(?, ?, ?, ?, ?) '''
+    sql = ''' INSERT INTO DWH_DOCUMENT(DOCUMENT_NUM, PATIENT_NUM, DOCUMENT_ORIGIN_CODE, DOCUMENT_DATE, UPDATE_DATE, DISPLAYED_TEXT, AUTHOR)
+                        VALUES(?, ?, ?, ? , ?, ?, ?) '''
     cur = conn.cursor()
     cur.execute(sql, doc)
     result = cur.lastrowid

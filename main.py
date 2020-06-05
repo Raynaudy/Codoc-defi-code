@@ -12,6 +12,7 @@ from datetime import date
 
 import db 
 import readFile
+import regex
 
 UPLOAD_ID = 0 #based on upload
 PATIENT_NUM = 0 #based on the last PATIENT_NUM in DB TODO
@@ -73,6 +74,15 @@ def pdfProcessing():
     index = 0
     for file in pdfFileArrayPath:
         text = readFile.readPdfFile(file)
+        DOCUMENT_DATE = regex.getDateDoc(text)
+        if not DOCUMENT_DATE:
+            DOCUMENT_DATE = None #compatatible DB NULL format
+        else:
+            DOCUMENT_DATE = DOCUMENT_DATE[0]
+
+        #getting probable author
+        AUTHOR = regex.getAuthor(text)
+   
         strModif = file[len(pathFolder):-len(extension)] #getting rid of path and extension
         documentName = strModif.split("_")
 
@@ -82,9 +92,9 @@ def pdfProcessing():
         #get patient id from patientIpp
         conn = db.create_connection(DATABASE)
         patient_num = db.select_patient_id(conn, patientIpp)
-        db.insert_document(conn, (documentId, patient_num, DOCUMENT_ORIGIN_CODE, date.today().strftime("%m/%d/%y"), text))
+        db.insert_document(conn, (documentId, patient_num, DOCUMENT_ORIGIN_CODE, DOCUMENT_DATE, date.today().strftime("%m/%d/%y"), text, AUTHOR))
         
-        #commit the changes to db			
+        #commit the changes to db
         conn.commit()
         #close the connection
         conn.close()
@@ -107,6 +117,17 @@ def docxProcessing():
     index = 0
     for file in docxFileArrayPath:
         text = readFile.readDocxFile(file)
+
+        #Getting probable date
+        DOCUMENT_DATE = regex.getDateDoc(text)
+        if not DOCUMENT_DATE:
+            DOCUMENT_DATE = None #compatatible DB NULL format
+        else:
+            DOCUMENT_DATE = DOCUMENT_DATE[0] #0 because getDateDoc return a list
+
+        #getting probable author
+        AUTHOR = regex.getAuthor(text)
+     
         strModif = file[len(pathFolder):-len(extension)] #getting rid of path and extension
         documentName = strModif.split("_")
 
@@ -117,7 +138,7 @@ def docxProcessing():
         conn = db.create_connection(DATABASE)
         patient_num = db.select_patient_id(conn, patientIpp.lstrip('0')) #removing leading 0 causing troubles in select
 
-        db.insert_document(conn, (documentId, patient_num, DOCUMENT_ORIGIN_CODE, date.today().strftime("%m/%d/%y"), text))
+        db.insert_document(conn, (documentId, patient_num, DOCUMENT_ORIGIN_CODE, DOCUMENT_DATE, date.today().strftime("%m/%d/%y"), text, AUTHOR))
         
         #commit the changes to db			
         conn.commit()
@@ -133,6 +154,9 @@ def main():
     importXlsxIntoDb("fichiers source/export_patient.xlsx")
     pdfProcessing()
     docxProcessing()
+
+
+
 
 if __name__ == '__main__':
     main()
