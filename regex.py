@@ -15,7 +15,10 @@ def getDateDoc(text):
     """
     #removing weird tuple https://stackoverflow.com/questions/24593824/why-does-re-findall-return-a-list-of-tuples-when-my-pattern-only-contains-one-gr
     res = ["".join(x) for x in re.findall(r'([0-3][0-9]\/0[0-9]\/20[0-9]{2,})|([0-3][0-9]\/1[0-2]\/20[0-5][0-9])', text)]
-    return res
+    if (not res):
+        return None
+    else:
+        return res[0]
 
 def getAuthor(text):
     """

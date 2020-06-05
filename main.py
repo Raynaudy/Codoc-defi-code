@@ -60,6 +60,24 @@ def importXlsxIntoDb(input):
     connection.close()
     print("\n")
 
+def getDocumentQuery(text, DOCUMENT_ORIGIN_CODE, file, pathFolder, extension):
+    """
+        Returning query from text as tuple
+        format : (documentId, patient_num, DOCUMENT_ORIGIN_CODE, DOCUMENT_DATE, date.today().strftime("%m/%d/%y"), text, AUTHOR)
+    """
+    DOCUMENT_DATE = regex.getDateDoc(text)
+    #getting probable author
+    AUTHOR = regex.getAuthor(text)
+    strModif = file[len(pathFolder):-len(extension)] #getting rid of path and extension
+    documentName = strModif.split("_")
+    patientIpp = documentName[0]
+    documentId = documentName[1]
+    #get patient id from patientIpp
+    conn = db.create_connection(DATABASE)
+    patient_num = db.select_patient_id(conn, patientIpp.lstrip('0')) #removing leading 0 causing troubles in select
+    conn.close()
+    return (documentId, patient_num, DOCUMENT_ORIGIN_CODE, DOCUMENT_DATE, date.today().strftime("%m/%d/%y"), text, AUTHOR)
+
 def pdfProcessing():
     """
     Read and process all pdf file situated in "./fichiers source/" then inject it in the document table
@@ -74,26 +92,10 @@ def pdfProcessing():
     index = 0
     for file in pdfFileArrayPath:
         text = readFile.readPdfFile(file)
-        DOCUMENT_DATE = regex.getDateDoc(text)
-        if not DOCUMENT_DATE:
-            DOCUMENT_DATE = None #compatatible DB NULL format
-        else:
-            DOCUMENT_DATE = DOCUMENT_DATE[0]
-
-        #getting probable author
-        AUTHOR = regex.getAuthor(text)
-   
-        strModif = file[len(pathFolder):-len(extension)] #getting rid of path and extension
-        documentName = strModif.split("_")
-
-        patientIpp = documentName[0]
-        documentId = documentName[1]
-
-        #get patient id from patientIpp
+        query = getDocumentQuery(text, DOCUMENT_ORIGIN_CODE, file, pathFolder, extension)
         conn = db.create_connection(DATABASE)
-        patient_num = db.select_patient_id(conn, patientIpp)
-        db.insert_document(conn, (documentId, patient_num, DOCUMENT_ORIGIN_CODE, DOCUMENT_DATE, date.today().strftime("%m/%d/%y"), text, AUTHOR))
-        
+        db.insert_document(conn, query)
+
         #commit the changes to db
         conn.commit()
         #close the connection
@@ -117,29 +119,9 @@ def docxProcessing():
     index = 0
     for file in docxFileArrayPath:
         text = readFile.readDocxFile(file)
-
-        #Getting probable date
-        DOCUMENT_DATE = regex.getDateDoc(text)
-        if not DOCUMENT_DATE:
-            DOCUMENT_DATE = None #compatatible DB NULL format
-        else:
-            DOCUMENT_DATE = DOCUMENT_DATE[0] #0 because getDateDoc return a list
-
-        #getting probable author
-        AUTHOR = regex.getAuthor(text)
-     
-        strModif = file[len(pathFolder):-len(extension)] #getting rid of path and extension
-        documentName = strModif.split("_")
-
-        patientIpp = documentName[0]
-        documentId = documentName[1]
-
-        #get patient id from patientIpp
+        query = getDocumentQuery(text, DOCUMENT_ORIGIN_CODE, file, pathFolder, extension)
         conn = db.create_connection(DATABASE)
-        patient_num = db.select_patient_id(conn, patientIpp.lstrip('0')) #removing leading 0 causing troubles in select
-
-        db.insert_document(conn, (documentId, patient_num, DOCUMENT_ORIGIN_CODE, DOCUMENT_DATE, date.today().strftime("%m/%d/%y"), text, AUTHOR))
-        
+        db.insert_document(conn, query)
         #commit the changes to db			
         conn.commit()
         #close the connection
