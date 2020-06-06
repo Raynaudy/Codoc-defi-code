@@ -44,14 +44,15 @@ def importXlsxIntoDb(input):
             DEATH_CODE = 0
         #insert in client
         db.insert_patient_ipphist(connection, (PATIENT_NUM, row['HOSPITAL_PATIENT_ID'], "export_patient.xlsx", 0, UPLOAD_ID))
-        PATIENT_NUM = PATIENT_NUM + 1
-        UPLOAD_ID = UPLOAD_ID + 1
+        
 
         if (pd.isna(row['NOM_JEUNE_FILLE']) == False):
             MAIDEN_NAME = row['NOM_JEUNE_FILLE']
         else:
             MAIDEN_NAME = None
         db.insert_patient(connection, (PATIENT_NUM, row['NOM'], row['PRENOM'], row['DATE_NAISSANCE'], row['SEXE'], MAIDEN_NAME, row['ADRESSE'], row['TEL'], row['CP'], row['VILLE'], DEATH_DATE, row['PAYS'], DEATH_CODE, UPLOAD_ID))
+        PATIENT_NUM = PATIENT_NUM + 1
+        UPLOAD_ID = UPLOAD_ID + 1
         if (index % 100 == 0):
             print(".", end = '')
     #commit the changes to db			
