@@ -35,7 +35,7 @@ def importXlsxIntoDb(input):
 
     #looping on each row
     print(" - Importing data in DB", end = '')
-    for index, row in xlsx.iterrows(): #index is needed
+    for index, row in xlsx.iterrows():
         if (pd.isna(row['DATE_MORT']) == False):
             DEATH_DATE = row['DATE_MORT']
             DEATH_CODE = 1
@@ -81,26 +81,23 @@ def pdfProcessing():
     Read and process all pdf file situated in "./fichiers source/" then inject it in the document table
     """
     global DATABASE
+    conn = db.create_connection(DATABASE)
     DOCUMENT_ORIGIN_CODE = "DOSSIER_PATIENT"
 
     pathFolder = "fichiers source/"
     extension = ".pdf"
     pdfFileArrayPath = glob.glob(pathFolder + "*" + extension)
     print(" - Processing pdf", end="")
-    index = 0
     for file in pdfFileArrayPath:
         text = readFile.readPdfFile(file)
         query = getDocumentQuery(text, DOCUMENT_ORIGIN_CODE, file, pathFolder, extension)
-        conn = db.create_connection(DATABASE)
-        db.insert_document(conn, query)
-
-        #commit the changes to db
-        conn.commit()
-        #close the connection
-        conn.close()
         
+        db.insert_document(conn, query)
         print(".", end = '')
-        index = index + 1
+    #commit the changes to db
+    conn.commit()
+    #close the connection
+    conn.close()
     print("\n")
 
 def docxProcessing():
@@ -109,28 +106,24 @@ def docxProcessing():
     """
     DOCUMENT_ORIGIN_CODE = "RADIOLOGIE_SOFTWARE"
     global DATABASE
-
+    conn = db.create_connection(DATABASE)
     pathFolder = "fichiers source/"
     extension = ".docx"
     docxFileArrayPath = glob.glob(pathFolder + "*" + extension)
-    print(" - Processing docx", end="")
-    index = 0
+    print(" - Processing docx", end="") 
     for file in docxFileArrayPath:
         text = readFile.readDocxFile(file)
         query = getDocumentQuery(text, DOCUMENT_ORIGIN_CODE, file, pathFolder, extension)
-        conn = db.create_connection(DATABASE)
-        db.insert_document(conn, query)
-        #commit the changes to db			
-        conn.commit()
-        #close the connection
-        conn.close()
-        
+        db.insert_document(conn, query)    
         print(".", end = '')
-        index = index + 1
+    #commit the changes to db			
+    conn.commit()
+    #close the connection
+    conn.close()
     print("\n")
 
 def main():
-    db.resetDB()
+    db.resetDB() #debugging purpose
     importXlsxIntoDb("fichiers source/export_patient.xlsx")
     pdfProcessing()
     docxProcessing()
